@@ -1,7 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ar.edu.itba.cripto</groupId>
@@ -9,14 +9,17 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>secret-image</name>
-    <url>http://maven.apache.org</url>
+    <name>${groupId}:${artifactId}</name>
+    <url>https://github.com/juanmbellini/secret-image</url>
 
     <properties>
+        <!-- Build -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- Versions -->
         <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
+
+        <!-- Dependencies -->
         <com.beust.jcommander.version>1.60</com.beust.jcommander.version>
         <org.junit.version>4.12</org.junit.version>
     </properties>
@@ -38,7 +41,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 
 
     <build>
@@ -92,6 +94,84 @@
                 </executions>
             </plugin>
 
+            <!-- Sources -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven-source-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Javadocs -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <tags>
+                        <tag>
+                            <name>implNote</name>
+                            <placement>tcm</placement>
+                            <head>Implementation note:</head>
+                        </tag>
+                        <tag>
+                            <name>apiNote</name>
+                            <placement>tcm</placement>
+                            <head>API note:</head>
+                        </tag>
+                    </tags>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
+
+    <developers>
+        <developer>
+            <name>Juan Marcos Bellini</name>
+            <email>jbellini@itba.edu.ar</email>
+            <organization>Instituto Tecnologico de Buenos Aires</organization>
+            <organizationUrl>https://www.itba.edu.ar</organizationUrl>
+        </developer>
+        <developer>
+            <name>Diego de Rochebouët</name>
+            <email>ddegrimaudetderocheb@itba.edu.ar</email>
+            <organization>Instituto Tecnologico de Buenos Aires</organization>
+            <organizationUrl>https://www.itba.edu.ar</organizationUrl>
+        </developer>
+        <developer>
+            <name>Leandro Llorca</name>
+            <email>lllorca@itba.edu.ar</email>
+            <organization>Instituto Tecnologico de Buenos Aires</organization>
+            <organizationUrl>https://www.itba.edu.ar</organizationUrl>
+        </developer>
+        <developer>
+            <name>Jose Vitali</name>
+            <email>jvitali@itba.edu.ar</email>
+            <organization>Instituto Tecnologico de Buenos Aires</organization>
+            <organizationUrl>https://www.itba.edu.ar</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/juanmbellini/secret-image.git</connection>
+        <developerConnection>scm:git:ssh://github.com:juanmbellini/secret-image.git</developerConnection>
+        <url>http://github.com/juanmbellini/secret-image/tree/master</url>
+    </scm>
+
 </project>

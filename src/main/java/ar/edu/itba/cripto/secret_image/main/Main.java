@@ -52,8 +52,7 @@ public class Main implements Runnable {
     @Parameter(names = {"-k"},
             required = true,
             description = "The minimum amount of shadows needed to recover the secret image.",
-            validateWith = PositiveIntegerValidator.class
-    )
+            validateWith = PositiveIntegerValidator.class)
     private int minimumShadows;
 
     /**

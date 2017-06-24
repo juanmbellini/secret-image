@@ -3,7 +3,9 @@ package ar.edu.itba.cripto.secret_image.bmp;
 
 import org.apache.commons.io.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class BmpEditor {
 
@@ -16,7 +18,29 @@ public class BmpEditor {
 
     /*package*/ BmpEditor(BmpUtils bmpUtils) {
         this.bmpUtils = bmpUtils;
-        this.pointer = (int) bmpUtils.offset;
+        this.pointer = bmpUtils.offset;
+    }
+
+    public static boolean newImage(String name, List<Integer> image, BmpUtils shadow){
+        File newFile = new File(name);
+
+        int total = shadow.offset+image.size();
+        byte[] newImage = new byte[total];
+
+        for (int i = 0; i < shadow.offset; i++) {
+            newImage[i]=shadow.fileBytes[i];
+        }
+        for (int i = 0; i < image.size(); i++) {
+            newImage[shadow.offset+i] = (byte) image.get(i).intValue();
+        }
+
+        try {
+            FileUtils.writeByteArrayToFile(newFile, newImage);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+
     }
 
     public void editSeed(int num){

@@ -17,19 +17,18 @@ import java.util.List;
 public class BmpUtils implements Iterable<List<Integer>>{
 
     //Metadata
-    private final long fileSize;
+    private final int fileSize;
     private final int shadow;
     private final int seed;
-    /*package*/ final long offset;
+    /*package*/ final int offset;
 
     //Constructor
     /*package*/ final File file;
     /*package*/ final byte[] fileBytes;
-    /*package*/ final int k;
+    private int bytesFromIterator = 8;
 
-    public BmpUtils(String path, int k) throws IOException {
+    public BmpUtils(String path) throws IOException {
         this.file = new File(path);
-        this.k = k;
 
         ImageInputStream imageStream = new FileImageInputStream(file);
         imageStream.setByteOrder(ByteOrder.LITTLE_ENDIAN);
@@ -37,12 +36,12 @@ public class BmpUtils implements Iterable<List<Integer>>{
         //Skip ID
         imageStream.skipBytes(2);
         //Size of whole fileBytes
-        this.fileSize = imageStream.readUnsignedInt();
+        this.fileSize = (int) imageStream.readUnsignedInt();
         //Skip reserved
         this.seed = imageStream.readUnsignedShort(); //seed
         this.shadow = imageStream.readUnsignedShort(); //shadow
         //Offset to image start
-        this.offset = imageStream.readUnsignedInt();
+        this.offset = (int) imageStream.readUnsignedInt();
 
         imageStream.close();
 
@@ -68,6 +67,10 @@ public class BmpUtils implements Iterable<List<Integer>>{
         return seed;
     }
 
+    public void setBytesFromIterator(int bytesFromIterator) {
+        this.bytesFromIterator = bytesFromIterator;
+    }
+
     public BmpEditor edit(){
         return new BmpEditor(this);
     }
@@ -79,17 +82,17 @@ public class BmpUtils implements Iterable<List<Integer>>{
 
     private class KByteIterator implements Iterator<List<Integer>> {
 
-        int index = (int) offset;
+        int index = offset;
 
         @Override
         public boolean hasNext() {
-            return index + k <= fileSize;
+            return index + bytesFromIterator <= fileSize;
         }
 
         @Override
         public List<Integer> next() {
             List<Integer> list = new ArrayList();
-            for (int i = 0; i < k; i++) {
+            for (int i = 0; i < bytesFromIterator; i++) {
                 list.add(Byte.toUnsignedInt(fileBytes[index++]));
             }
             return list;

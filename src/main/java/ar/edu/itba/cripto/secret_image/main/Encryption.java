@@ -1,10 +1,13 @@
 package ar.edu.itba.cripto.secret_image.main;
 
 
+import ar.edu.itba.cripto.secret_image.bmp.BmpEditor;
+import ar.edu.itba.cripto.secret_image.bmp.BmpUtils;
 import ar.edu.itba.cripto.secret_image.main.util.PseudoTable;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -18,8 +21,12 @@ public class Encryption {
 
     public Encryption(int k, int n, String secretImagePath, String directory){
         this.k = k;
-        this.secretImagePath = secretImagePath;
         this.n = n;
+//        this.secretImagePath = secretImagePath;
+
+        this.secretImagePath = "/home/vitali/Documents/Cripto/tp/secret-image/src/main/resources/secret/Alfred.bmp";
+        directory = "/home/vitali/Documents/Cripto/tp/secret-image/src/main/resources/shadows";
+
 
         File dir = new File(directory);
         File [] files = dir.listFiles(new FilenameFilter() {
@@ -41,21 +48,17 @@ public class Encryption {
      */
     public void encrypt(){
 
+        System.out.println("----- encrypting -----");
+
         //Mocking BMPUtil
-        List<List<Integer>> bmpUtil = new ArrayList<>();
-        List<Integer> coeffs = new ArrayList<>();
-        coeffs.add(1);
-        coeffs.add(2);
-        coeffs.add(4);
-        coeffs.add(8);
-        coeffs.add(16);
-        coeffs.add(32);
-        coeffs.add(64);
-        coeffs.add(128);
+        BmpUtils bmpUtil = null;
+        try {
+            bmpUtil = new BmpUtils(secretImagePath, k);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        bmpUtil.add(coeffs);
-
-        int imageSize = 64;
+        int imageSize = (int)bmpUtil.getImageSize();
 
         Random random = new Random();
 
@@ -69,22 +72,35 @@ public class Encryption {
         for(List<Integer> coefficients : bmpUtil){
             List<Integer> newCoefficients = new ArrayList<>();
             for (int j = 0; j < coefficients.size(); j++) {
-                newCoefficients.add(coefficients.get(i) ^ pseudoTable.get(i+j));
+                newCoefficients.add(coefficients.get(j) ^ pseudoTable.get(i+j));
             }
             i++;
+
+
+            System.out.println("----- evaluating polynomials " + i + "  -----");
 
             List<Integer> evals = evalPolynomial(newCoefficients, n);
 
             evalsList.add(evals);
         }
 
+
+        System.out.println("----- polynomials evaled -----");
+
         for (int j = 0; j < n; j++) {
-            BMPUtils shadow = new BMPUtil(shadowPaths.get(j));
-            shadow.editSeed(seed);
-            shadow.editShadow(j + 1);
-            for (int l = 0; l < evalsList.size(); l++) {
-                shadow.modifyBytes(evalsList.get(l).get(j));
+            BmpUtils shadow = null;
+            try {
+                shadow = new BmpUtils(shadowPaths.get(j), k);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            BmpEditor editor = shadow.edit();
+            editor.editSeed(seed);
+            editor.editShadow(j + 1);
+            for (int l = 0; l < evalsList.size(); l++) {
+                editor.insertSecret(evalsList.get(l).get(j));
+            }
+            editor.saveImage();
         }
     }
 
@@ -119,6 +135,7 @@ public class Encryption {
                     }
                 }
                 else{
+                    overflow = false;
                     evals.add(x-1, eval);
                 }
             }

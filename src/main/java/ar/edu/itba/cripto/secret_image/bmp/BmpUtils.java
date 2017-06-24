@@ -41,7 +41,6 @@ public class BmpUtils implements Iterable<List<Integer>>{
         //Skip reserved
         this.seed = imageStream.readUnsignedShort(); //seed
         this.shadow = imageStream.readUnsignedShort(); //shadow
-        imageStream.skipBytes(4);
         //Offset to image start
         this.offset = imageStream.readUnsignedInt();
 

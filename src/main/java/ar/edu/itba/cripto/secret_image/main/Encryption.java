@@ -53,7 +53,8 @@ public class Encryption {
         //Mocking BMPUtil
         BmpUtils bmpUtil = null;
         try {
-            bmpUtil = new BmpUtils(secretImagePath, k);
+            bmpUtil = new BmpUtils(secretImagePath);
+            bmpUtil.setBytesFromIterator(k);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,7 +91,8 @@ public class Encryption {
         for (int j = 0; j < n; j++) {
             BmpUtils shadow = null;
             try {
-                shadow = new BmpUtils(shadowPaths.get(j), k);
+                shadow = new BmpUtils(shadowPaths.get(j));
+                shadow.setBytesFromIterator(k);
             } catch (IOException e) {
                 e.printStackTrace();
             }

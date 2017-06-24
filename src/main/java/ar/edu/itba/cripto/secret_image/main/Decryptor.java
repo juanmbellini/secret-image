@@ -1,6 +1,8 @@
 package ar.edu.itba.cripto.secret_image.main;
 
+import ar.edu.itba.cripto.secret_image.bmp.BmpEditor;
 import ar.edu.itba.cripto.secret_image.bmp.BmpUtils;
+import ar.edu.itba.cripto.secret_image.main.util.PseudoTable;
 
 import java.io.IOException;
 import java.util.*;
@@ -11,26 +13,23 @@ public class Decryptor {
      *
      * @return
      */
-    public static BmpUtils decrypt(String secretName,String secretPath, ArrayList<String> paths) throws IOException {
+    public static void decrypt(String secretPath, String secretName, ArrayList<String> paths) throws IOException {
 
         int k = paths.size();
         if(k<2){
             throw new IllegalArgumentException("Number of shadows must be at least 2");
         }
-
         ArrayList<BmpUtils> images = new ArrayList<>();
-
 
         int size = -1;
         int seed = -1;
 
         Set<Integer> shadowNumbers = new HashSet<>();
-                //TODO check diferentes shadows. y misma seed
         for(int i=0; i<k; i++){
             String path = paths.get(i);
             BmpUtils bmpUtils;
             try {
-                bmpUtils = new BmpUtils(path, 8);
+                bmpUtils = new BmpUtils(path);
             } catch (IOException e) {
                 e.printStackTrace();
                 throw e;
@@ -50,7 +49,7 @@ public class Decryptor {
                     throw new IllegalArgumentException("Seed of shadows is not consistent");
                 }
             }
-
+            images.add(bmpUtils);
         }
         if(shadowNumbers.size()!=k){
             throw  new IllegalArgumentException("Repeated shadow numbers");
@@ -65,13 +64,10 @@ public class Decryptor {
 
         /* Get all bytes hiden in all the shadows */
         for(int i=0; i<k; i++){
-            BmpUtils bmpUtils = images.get(k);
-
-
+            BmpUtils bmpUtils = images.get(i);
             int shadowNumber = bmpUtils.getShadow();
             int m=0;
             int secretByte=0;
-
             bmpUtils.setBytesFromIterator(8);
             for(List<Integer> byteArray: bmpUtils){
                 for(int j=0; j<8; j++){
@@ -84,23 +80,18 @@ public class Decryptor {
                 m++;
             }
         }
-
         /* Use hidden bytes to form the polynomes */
         ArrayList<Integer> resultBytes = new ArrayList<>();
-        ArrayList<Integer> permutationTable = PseudoTable.generatePseudoTable(k*numPolynomes, seed);
-//TODO integrar con el metodo de josé que tiene que mover a util
+        List<Integer> permutationTable = PseudoTable.generatePseudoTable(k*numPolynomes, seed);
+//        for(int polynomeNumber=0; polynomeNumber<numPolynomes; polynomeNumber++){
+//            ArrayList<Integer> coefficients = getCoefficients(evaluatedPolynomesMap.get(polynomeNumber));
+//            //TODO integrar con el merka
+//            if(coefficients.size()!=k) throw  new IllegalStateException("coefficients != k");
+//            for(int coefficientNumber=0; coefficientNumber<k; coefficientNumber++){
+//                resultBytes.add(coefficients.get(coefficientNumber)^ permutationTable.get(polynomeNumber*k+coefficientNumber));
+//            }
+//        }
 
-        for(int polynomeNumber=0; polynomeNumber<numPolynomes; polynomeNumber++){
-            ArrayList<Integer> coefficients = getCoefficients(evaluatedPolynomesMap.get(polynomeNumber));
-            //TODO integrar con el merka
-            if(coefficients.size()!=k) throw  new IllegalStateException("coefficients != k");
-            for(int coefficientNumber=0; coefficientNumber<k; coefficientNumber++){
-                resultBytes.add(coefficients.get(coefficientNumber)^ permutationTable.get(polynomeNumber*k+coefficientNumber));
-            }
-        }
-
-        BmpUtils secretImage = new BmpUtils(secretPath+secretName,resultBytes,images.get(0));
-        return secretImage;
+        BmpEditor.newImage(secretPath + secretName, resultBytes, images.get(0));
     }
-
 }

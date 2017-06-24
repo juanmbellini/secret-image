@@ -1,46 +1,49 @@
 package ar.edu.itba.cripto.secret_image.main;
 
+import ar.edu.itba.cripto.secret_image.bmp.BmpUtils;
+
+import java.io.IOException;
 import java.util.*;
 
 public class Decryptor {
-
-    public static class BmpUtils{
-        //TODO integrar con Lean
-        ArrayList<Integer> getBytes(){
-            return null;
-        }
-    }
-
-
     /**
-     * returns the secret image using ALL the images from the ArrayList images.
-     * @param images
+     * Creates the secret image with name "secretName" in the path "secretPath" using ALL the images from the paths "paths".
+     *
      * @return
      */
-    BmpUtils decrypt(ArrayList<BmpUtils> images){
+    public static BmpUtils decrypt(String secretName,String secretPath, ArrayList<String> paths) throws IOException {
 
-        int k = images.size();
-
+        int k = paths.size();
         if(k<2){
             throw new IllegalArgumentException("Number of shadows must be at least 2");
         }
 
-        int size;
-        int seed;
+        ArrayList<BmpUtils> images = new ArrayList<>();
+
+
+        int size = -1;
+        int seed = -1;
 
         Set<Integer> shadowNumbers = new HashSet<>();
                 //TODO check diferentes shadows. y misma seed
         for(int i=0; i<k; i++){
-            BmpUtils bmpUtils = images.get(k);
+            String path = paths.get(i);
+            BmpUtils bmpUtils;
+            try {
+                bmpUtils = new BmpUtils(path, 8);
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw e;
+            }
             shadowNumbers.add(bmpUtils.getShadow());
             if(i == 0){
-                size = bmpUtils.getImageSize();
+                size =(int)bmpUtils.getImageSize();
                 if(size % 8 != 0){
                     throw new IllegalArgumentException("Shadow image size is not divisible by 8");
                 }
                 seed = bmpUtils.getSeed();
             }else{
-                if(size != bmpUtils.getImageSize()){
+                if(size != (int)bmpUtils.getImageSize()){
                     throw new IllegalArgumentException("Size of shadows is not consistent");
                 }
                 if(seed != bmpUtils.getSeed()){
@@ -64,20 +67,21 @@ public class Decryptor {
         for(int i=0; i<k; i++){
             BmpUtils bmpUtils = images.get(k);
 
+
             int shadowNumber = bmpUtils.getShadow();
-            int j=0;
             int m=0;
             int secretByte=0;
-            for(int b: bmpUtils){
-                secretByte <<= 1;
-                int secretBit=b^0x01;
-                secretByte |= secretBit;
-                j++;
-                if(j==8){
-                    evaluatedPolynomesMap.get(m).put(shadowNumber,secretByte);
-                    j=0;
-                    m++;
+
+            bmpUtils.setBytesFromIterator(8);
+            for(List<Integer> byteArray: bmpUtils){
+                for(int j=0; j<8; j++){
+                    int b = byteArray.get(j);
+                    secretByte <<= 1;
+                    int secretBit=b^0x01;
+                    secretByte |= secretBit;
                 }
+                evaluatedPolynomesMap.get(m).put(shadowNumber,secretByte);
+                m++;
             }
         }
 
@@ -95,7 +99,8 @@ public class Decryptor {
             }
         }
 
-        return new BmpUtils(resultBytes);
+        BmpUtils secretImage = new BmpUtils(secretPath+secretName,resultBytes,images.get(0));
+        return secretImage;
     }
 
 }

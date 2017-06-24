@@ -95,7 +95,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ar.edu.itba.cripto.secret_image.Main</mainClass>
+                            <mainClass>ar.edu.itba.cripto.secret_image.main.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

@@ -149,21 +149,16 @@ public class Main implements Runnable {
      *
      * @param args Execution arguments.
      */
-//    public static void main(String[] args) {
-//
-//        try {
-//            new Main(args).run();
-//        } catch (Throwable e) {
-//            System.err.println(e.getMessage());
-//            System.err.println("Problems were encountered while executing system.");
-//            System.err.println("Aborting.");
-//            System.exit(1);
-//        }
-//    }
-
     public static void main(String[] args) {
-        Encryption encryption = new Encryption(8,8,"C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\Secret2.bmp","C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows");
-        encryption.encrypt();
+
+        try {
+            new Main(args).run();
+        } catch (Throwable e) {
+            System.err.println(e.getMessage());
+            System.err.println("Problems were encountered while executing system.");
+            System.err.println("Aborting.");
+            System.exit(1);
+        }
     }
 
 //    public static void main(String[] args) {
@@ -179,4 +174,11 @@ public class Main implements Runnable {
 //        }
 //
 //    }
+
+    //    public static void main(String[] args) {
+//
+//    Encryption encryption = new Encryption(8,8,"C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\Secret2.bmp","C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows");
+//        encryption.encrypt();
+//}
+
 }

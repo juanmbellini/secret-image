@@ -140,28 +140,22 @@ public class Main implements Runnable {
     // Main execution
     // ========================================================
 
-//
-//    /**
-//     * Entry point.
-//     *
-//     * @param args Execution arguments.
-//     */
-//    public static void main(String[] args) {
-//
-//        try {
-//            new Main(args).run();
-//        } catch (Throwable e) {
-//            System.err.println(e.getMessage());
-//            System.err.println("Problems were encountered while executing system.");
-//            System.err.println("Aborting.");
-//            System.exit(1);
-//        }
-//    }
 
-
+    /**
+     * Entry point.
+     *
+     * @param args Execution arguments.
+     */
     public static void main(String[] args) {
 
-
-
+        try {
+            new Main(args).run();
+        } catch (Throwable e) {
+            System.err.println(e.getMessage());
+            System.err.println("Problems were encountered while executing system.");
+            System.err.println("Aborting.");
+            System.exit(1);
+        }
     }
+
 }

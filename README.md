@@ -125,4 +125,5 @@ java -jar <path-to-jar> -d -secret image.bmp -k 6 -dir ~/Pictures/shadows
 * Jose Vitali
 
 ## Acknowledgments
-Math utils are based on https://github.com/nayuki/Nayuki-web-published-code project
+Math utils are based on https://github.com/nayuki/Nayuki-web-published-code project.
+Check https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field for more information.

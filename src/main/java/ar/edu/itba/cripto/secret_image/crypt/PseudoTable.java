@@ -1,4 +1,4 @@
-package ar.edu.itba.cripto.secret_image.main.util;
+package ar.edu.itba.cripto.secret_image.crypt;
 
 
 import java.util.ArrayList;

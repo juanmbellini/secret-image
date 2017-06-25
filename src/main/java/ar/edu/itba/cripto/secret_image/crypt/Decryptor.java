@@ -1,8 +1,7 @@
-package ar.edu.itba.cripto.secret_image.main;
+package ar.edu.itba.cripto.secret_image.crypt;
 
 import ar.edu.itba.cripto.secret_image.bmp.BmpEditor;
 import ar.edu.itba.cripto.secret_image.bmp.BmpUtils;
-import ar.edu.itba.cripto.secret_image.main.util.PseudoTable;
 import ar.edu.itba.cripto.secret_image.math_utils.PolynomialUtils;
 
 import java.io.IOException;
@@ -12,7 +11,6 @@ public class Decryptor {
     /**
      * Creates the secret image with name "secretName" in the path "secretPath" using ALL the images from the paths "paths".
      *
-     * @return
      */
     public static void decrypt(String secretPath, String secretName, ArrayList<String> paths) throws IOException {
 

@@ -1,9 +1,8 @@
-package ar.edu.itba.cripto.secret_image.main;
+package ar.edu.itba.cripto.secret_image.crypt;
 
 
 import ar.edu.itba.cripto.secret_image.bmp.BmpEditor;
 import ar.edu.itba.cripto.secret_image.bmp.BmpUtils;
-import ar.edu.itba.cripto.secret_image.main.util.PseudoTable;
 
 import java.io.File;
 import java.io.FilenameFilter;

@@ -131,9 +131,9 @@ public class Encryption {
 
         while(overflow) {
             evals = new ArrayList<>();
-            int eval = 0;
             overflow = false;
             for (int x = 1; x <= n && !overflow; x++) {
+                int eval = 0;
                 for (int i = 0; i < newCoefficients.size(); i++) {
                     int powerX = x;
                     for(int pow = 1; pow<i; pow++){

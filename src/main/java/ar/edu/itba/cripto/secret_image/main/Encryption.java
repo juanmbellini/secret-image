@@ -135,8 +135,8 @@ public class Encryption {
             for (int x = 1; x <= n && !overflow; x++) {
                 int eval = 0;
                 for (int i = 0; i < newCoefficients.size(); i++) {
-                    int powerX = x;
-                    for(int pow = 1; pow<i; pow++){
+                    int powerX = 1;
+                    for(int pow = 0; pow<i; pow++){
                         powerX *= x;
                         powerX %= 257;
                     }

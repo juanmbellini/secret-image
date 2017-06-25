@@ -24,8 +24,7 @@ public class Encryption {
         this.n = n;
 //        this.secretImagePath = secretImagePath;
 
-        this.secretImagePath = "/home/vitali/Documents/Cripto/tp/secret-image/src/main/resources/secret/Alfred.bmp";
-        directory = "/home/vitali/Documents/Cripto/tp/secret-image/src/main/resources/shadows";
+        this.secretImagePath = secretImagePath;
 
 
         File dir = new File(directory);
@@ -39,6 +38,9 @@ public class Encryption {
         this.shadowPaths = new ArrayList<>();
         for (File bmpfile : files) {
             shadowPaths.add(bmpfile.getPath());
+        }
+        if(shadowPaths.size()!=n){
+            throw new IllegalStateException("The amount of shadows is not N.");
         }
     }
 
@@ -61,6 +63,11 @@ public class Encryption {
 
         int imageSize = (int)bmpUtil.getImageSize();
 
+        if(imageSize%k!=0){
+            throw new IllegalStateException("Image to encrypt need to be of a size divisible by k");
+        }
+
+
         Random random = new Random();
 
         int seed = random.nextInt(65536);
@@ -73,7 +80,7 @@ public class Encryption {
         for(List<Integer> coefficients : bmpUtil){
             List<Integer> newCoefficients = new ArrayList<>();
             for (int j = 0; j < coefficients.size(); j++) {
-                newCoefficients.add(coefficients.get(j) ^ pseudoTable.get(i+j));
+                newCoefficients.add(coefficients.get(j) ^ pseudoTable.get(i*coefficients.size()+j));
             }
             i++;
 
@@ -96,6 +103,10 @@ public class Encryption {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            if( shadow.getImageSize() != (imageSize/k)*8 ){
+                throw new IllegalStateException("shadow size is not of correct size");
+            }
+
             BmpEditor editor = shadow.edit();
             editor.editSeed(seed);
             editor.editShadow(j + 1);
@@ -115,29 +126,35 @@ public class Encryption {
      * @return evaluations of polynomial with x from 1 to n
      */
     private List<Integer> evalPolynomial(List<Integer> newCoefficients, int n){
-        int eval = 0;
         boolean overflow = true;
-        List<Integer> evals = new ArrayList<>();
+        List<Integer> evals = null;
 
         while(overflow) {
+            evals = new ArrayList<>();
             overflow = false;
             for (int x = 1; x <= n && !overflow; x++) {
+                int eval = 0;
                 for (int i = 0; i < newCoefficients.size(); i++) {
-                    eval += newCoefficients.get(i) * Math.pow(x, i);
+                    int powerX = 1;
+                    for(int pow = 0; pow<i; pow++){
+                        powerX *= x;
+                        powerX %= 257;
+                    }
+                    eval += newCoefficients.get(i) * powerX;
+                    eval %= 257;
+//                    eval += newCoefficients.get(i) * Math.pow(x, i);
                 }
-                eval = eval % 257;
                 if(eval == 256){
                     overflow = true;
                     boolean flag = true;
                     for (int i = 0; i < newCoefficients.size() && flag; i++) {
                         if(newCoefficients.get(i) != 0){
-                            newCoefficients.add(i, newCoefficients.get(i)-1);
+                            newCoefficients.set(i, newCoefficients.get(i)-1);
                             flag = false;
                         }
                     }
                 }
                 else{
-                    overflow = false;
                     evals.add(x-1, eval);
                 }
             }

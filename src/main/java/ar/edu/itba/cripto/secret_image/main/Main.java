@@ -4,6 +4,9 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 /**
  * Entry point class.
  */
@@ -157,5 +160,25 @@ public class Main implements Runnable {
             System.exit(1);
         }
     }
+
+//    public static void main(String[] args) {
+//
+//        ArrayList<String> paths = new ArrayList<>();
+//        for(int i=1; i<=8; i++){
+//            paths.add("C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows\\"+i+".bmp");
+//        }
+//        try {
+//            Decryptor.decrypt("C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows\\","secret.bmp",paths);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+
+    //    public static void main(String[] args) {
+//
+//    Encryption encryption = new Encryption(8,8,"C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\Secret2.bmp","C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows");
+//        encryption.encrypt();
+//}
 
 }

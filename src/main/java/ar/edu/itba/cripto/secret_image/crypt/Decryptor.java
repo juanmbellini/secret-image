@@ -2,6 +2,7 @@ package ar.edu.itba.cripto.secret_image.crypt;
 
 import ar.edu.itba.cripto.secret_image.bmp.BmpImage;
 import ar.edu.itba.cripto.secret_image.bmp.WritableBmpImage;
+import ar.edu.itba.cripto.secret_image.io.BmpFileIO;
 import ar.edu.itba.cripto.secret_image.math_utils.PolynomialUtils;
 
 import java.io.File;
@@ -23,16 +24,46 @@ public class Decryptor {
      */
     private static final int BYTES_NEEDED = 8;
 
+    /**
+     * The amount of shadows needed to perform decryption.
+     */
     private final int k;
+    /**
+     * The path where the secret image must be saved.
+     */
     private final String secretImagePath;
+    /**
+     * The {@link List} of {@link BmpImage} where the secret image is hidden.
+     */
     private final List<BmpImage> shadows;
 
 
-    public Decryptor(int k, String secretImagePath, List<BmpImage> shadows) {
-        // TODO: check values (size, seed, shadow numbers, etc.)
+    public Decryptor(int k, String secretImagePath, String directory) {
+        if (k < 2) {
+            throw new IllegalArgumentException("Number of shadows must be at least 2");
+        }
+        if (directory == null) {
+            throw new IllegalArgumentException("Null directory");
+        }
+
+        this.shadows = BmpFileIO.getShadowImages(directory, k);
+        final BmpImage firstShadow = shadows.get(0);
+        if (firstShadow.getImageSize() % 8 != 0) {
+            throw new IllegalArgumentException("Shadow image size is not divisible by 8");
+        }
+        if (shadows.stream().filter(shadow -> shadow.getImageSize() != firstShadow.getImageSize()).count() > 0) {
+            throw new IllegalArgumentException("Not consistent shadow sizes");
+        }
+        if (shadows.stream().filter(shadow -> shadow.getSeed() != firstShadow.getSeed()).count() > 0) {
+            throw new IllegalArgumentException("Not consistent shadow seeds");
+        }
+        if (shadows.stream().collect(Collectors.groupingBy(BmpImage::getShadow, Collectors.counting()))
+                .entrySet().stream().map(Map.Entry::getValue).filter(each -> each > 1).count() > 0) {
+            throw new IllegalArgumentException("Repeated shadow numbers");
+        }
+
         this.k = k;
         this.secretImagePath = secretImagePath;
-        this.shadows = shadows;
     }
 
     /**

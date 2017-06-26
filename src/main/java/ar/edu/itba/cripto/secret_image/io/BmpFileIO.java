@@ -26,11 +26,25 @@ public class BmpFileIO {
      * @param dirPath The path where the shadow images are.
      * @return The {@link List} containing the shadows.
      */
-    public static List<WritableBmpImage> getShadowImages(String dirPath, int iteratorAmount) {
+    public static List<WritableBmpImage> getWritableShadowImages(String dirPath, int iteratorAmount) {
         //noinspection ConstantConditions
         return Arrays.stream(Optional.of(new File(dirPath).listFiles((dir, name) -> name.endsWith(".bmp")))
                 .orElse(new File[0]))
                 .map(each -> openWritableBmpImage(each, iteratorAmount))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns a {@link List} of {@link BmpImage} to be used as shadows.
+     *
+     * @param dirPath The path where the shadow images are.
+     * @return The {@link List} containing the shadows.
+     */
+    public static List<BmpImage> getShadowImages(String dirPath, int iteratorAmount) {
+        //noinspection ConstantConditions
+        return Arrays.stream(Optional.of(new File(dirPath).listFiles((dir, name) -> name.endsWith(".bmp")))
+                .orElse(new File[0]))
+                .map(each -> openBmpImage(each, iteratorAmount))
                 .collect(Collectors.toList());
     }
 
@@ -42,7 +56,6 @@ public class BmpFileIO {
      */
     public static BmpImage getSecretImage(String secretImagePath, int iteratorAmount) {
         return openWritableBmpImage(secretImagePath, iteratorAmount);
-
     }
 
 

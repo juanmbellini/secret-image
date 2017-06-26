@@ -18,16 +18,46 @@ import java.util.stream.StreamSupport;
  */
 public class Encryptor {
 
+    /**
+     * The amount of shadows needed to perform encryption.
+     */
     private final int k;
+    /**
+     * The {@link BmpImage} to be hidden.
+     */
     private final BmpImage secretImage;
+    /**
+     * The {@link List} of {@link BmpImage} where the secret image will be hidden.
+     */
     private final List<WritableBmpImage> shadows;
 
-    public Encryptor(int k, int n, String secretImagePath, String directory) {
-        // TODO: check values
+    /**
+     * Constructor.
+     *
+     * @param k               The amount of shadows needed to perform decryption.
+     * @param n               The total amount of shadows to be used
+     *                        (if {@code null}, the actual amount of images in the directory will be used).
+     * @param secretImagePath The path of the secret image.
+     * @param directory       The path of the directory containing the shadow images.
+     */
+    public Encryptor(int k, Integer n, String secretImagePath, String directory) {
+        if (k < 2) {
+            throw new IllegalArgumentException("Number of shadows must be at least 2");
+        }
+        if (secretImagePath == null) {
+            throw new IllegalArgumentException("Null secret image path");
+        }
+        if (directory == null) {
+            throw new IllegalArgumentException("Null directory");
+        }
 
         this.k = k;
         this.secretImage = BmpFileIO.getSecretImage(secretImagePath, k);
-        this.shadows = BmpFileIO.getShadowImages(directory, k);
+        final List<WritableBmpImage> tempList = BmpFileIO.getWritableShadowImages(directory, k);
+        this.shadows = tempList.subList(0, n == null ? tempList.size() : n);
+        if (shadows.size() < k) {
+            throw new IllegalArgumentException("More shadows are needed");
+        }
     }
 
 

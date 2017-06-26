@@ -145,7 +145,8 @@ public class Main implements Runnable {
         // to recover the secret image.
         if (amountOfShadows != null && minimumShadows > amountOfShadows) {
             throw new ParameterException("Fatal. " +
-                    "The amount of shadows must be greater or equal than the amount of shadows.");
+                    "The amount of shadows must be greater or equal than the minimum amount of shadows needed." +
+                    " Hint: n >= k");
         }
     }
 
@@ -165,7 +166,6 @@ public class Main implements Runnable {
         try {
             new Main(args).run();
         } catch (Throwable e) {
-            System.err.println(e.getMessage());
             System.err.println("Problems were encountered while executing system.");
             System.err.println("Aborting.");
             System.exit(1);

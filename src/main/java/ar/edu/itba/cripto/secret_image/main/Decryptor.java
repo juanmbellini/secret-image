@@ -82,10 +82,6 @@ public class Decryptor {
             shadowNumbers.add(bmpUtils.getShadow());
             if (i == 0) {
                 size = (int) bmpUtils.getImageSize();
-                if (size % 8 != 0) {
-                    //TODO
-//                    throw new IllegalArgumentException("Shadow image size is not divisible by 8");
-                }
                 seed = bmpUtils.getSeed();
             } else {
                 if (size != (int) bmpUtils.getImageSize()) {

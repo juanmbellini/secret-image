@@ -40,6 +40,9 @@ public class Decryptor {
         if (k < 2) {
             throw new IllegalArgumentException("Number of shadows must be at least 2");
         }
+        if (k > 257) {
+            throw new IllegalArgumentException("The maximum amount of shadows is 257");
+        }
         if (directory == null) {
             throw new IllegalArgumentException("Null directory");
         }
@@ -62,11 +65,6 @@ public class Decryptor {
      * Performs the encryption process according to the set parameters.
      */
     public void decrypt() {
-
-
-        if (k < 2) {
-            throw new IllegalArgumentException("Number of shadows must be at least 2");
-        }
         ArrayList<BmpUtils> images = new ArrayList<>();
 
         int size = -1;

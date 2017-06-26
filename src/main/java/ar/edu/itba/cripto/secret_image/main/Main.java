@@ -112,8 +112,8 @@ public class Main implements Runnable {
             return;
         }
         this.validateParameters();
-        System.out.println("Starting...");
-        System.out.println("Running in " + (distribution ? "distribution" : "recovery") + " mode.");
+//        System.out.println("Starting...");
+//        System.out.println("Running in " + (distribution ? "distribution" : "recovery") + " mode.");
         if (distribution) {
             final Encryption encryptor =
                     new Encryption(minimumShadows, amountOfShadows, secretImagePath, shadowsDirectory);

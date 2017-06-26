@@ -11,6 +11,9 @@ public class BmpEditor {
 
     private final int RESERVED_ONE = 0x6;
     private final int RESERVED_TWO = 0x8;
+    private final int HEIGTH = 0x16;
+    private final int FILESIZE = 0x2;
+    private final int PICSIZE=0x22;
 
     private final BmpUtils bmpUtils;
 
@@ -21,26 +24,27 @@ public class BmpEditor {
         this.pointer = bmpUtils.offset;
     }
 
-    public static boolean newImage(String name, List<Integer> image, BmpUtils shadow){
+    public BmpEditor(String name, List<Integer> image, BmpUtils shadow, int k){
         File newFile = new File(name);
-
         int total = shadow.offset+image.size();
         byte[] newImage = new byte[total];
-
         for (int i = 0; i < shadow.offset; i++) {
             newImage[i]=shadow.fileBytes[i];
         }
         for (int i = 0; i < image.size(); i++) {
             newImage[shadow.offset+i] = (byte) image.get(i).intValue();
         }
+        int rowSize = Math.floorDiv(shadow.getWidth()*8+31, 32)*4;
+        int height = Math.floorDiv(image.size(), rowSize);
 
-        try {
-            FileUtils.writeByteArrayToFile(newFile, newImage);
-        } catch (IOException e) {
-            return false;
+        this.bmpUtils = new BmpUtils(newFile, newImage, shadow, height);
+
+        if(k!=8){
+            editFilesize(total);
+            editPicSize(image.size());
+
+            editHeight(height);
         }
-        return true;
-
     }
 
     public void editSeed(int num){
@@ -49,6 +53,18 @@ public class BmpEditor {
 
     public void editShadow(int num){
         editMetadata(RESERVED_TWO, num);
+    }
+
+    public void editFilesize(int num){
+        editMetadata(FILESIZE, num);
+    }
+
+    public void editHeight(int num){
+        editMetadata(HEIGTH, num);
+    }
+
+    public void editPicSize(int num){
+        editMetadata(PICSIZE, num);
     }
 
     private void editMetadata(int position, int data){

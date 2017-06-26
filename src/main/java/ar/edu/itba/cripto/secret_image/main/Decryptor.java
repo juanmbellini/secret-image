@@ -92,6 +92,7 @@ public class Decryptor {
 //            }
 //        }
 
-        BmpEditor.newImage(secretPath + secretName, resultBytes, images.get(0));
+        BmpEditor secret = new BmpEditor(secretPath + secretName, resultBytes, images.get(0), k);
+        secret.saveImage();
     }
 }

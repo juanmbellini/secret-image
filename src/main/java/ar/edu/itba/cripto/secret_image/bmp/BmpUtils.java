@@ -20,6 +20,8 @@ public class BmpUtils implements Iterable<List<Integer>>{
     private final int fileSize;
     private final int shadow;
     private final int seed;
+    private final int width;
+    private final int heigth;
     /*package*/ final int offset;
 
     //Constructor
@@ -37,11 +39,16 @@ public class BmpUtils implements Iterable<List<Integer>>{
         imageStream.skipBytes(2);
         //Size of whole fileBytes
         this.fileSize = (int) imageStream.readUnsignedInt();
-        //Skip reserved
+        //Reserved: seed + shadow
         this.seed = imageStream.readUnsignedShort(); //seed
         this.shadow = imageStream.readUnsignedShort(); //shadow
         //Offset to image start
         this.offset = (int) imageStream.readUnsignedInt();
+        //Skip Length of BitMapInfoHeader
+        imageStream.skipBytes(4);
+        //Width & heigth
+        this.width = (int)imageStream.readUnsignedInt();
+        this.heigth = (int)imageStream.readUnsignedInt();
 
         imageStream.close();
 
@@ -49,6 +56,17 @@ public class BmpUtils implements Iterable<List<Integer>>{
         this.fileBytes = IOUtils.toByteArray(inputStream);
         inputStream.close();
 
+    }
+
+    /* package */ BmpUtils(File file, byte[] bytes, BmpUtils shadow, int heigth){
+        this.file = file;
+        this.fileBytes = bytes;
+        this.fileSize = bytes.length;
+        this.offset = shadow.offset;
+        this.seed=0;
+        this.shadow=0;
+        this.width=shadow.width;
+        this.heigth=heigth;
     }
 
     public long getFileSize() {
@@ -78,6 +96,14 @@ public class BmpUtils implements Iterable<List<Integer>>{
     @Override
     public Iterator<List<Integer>> iterator() {
         return new KByteIterator();
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeigth(){
+        return heigth;
     }
 
     private class KByteIterator implements Iterator<List<Integer>> {

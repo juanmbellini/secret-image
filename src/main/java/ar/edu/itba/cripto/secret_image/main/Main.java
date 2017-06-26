@@ -1,11 +1,9 @@
 package ar.edu.itba.cripto.secret_image.main;
 
+import ar.edu.itba.cripto.secret_image.crypt.Encryptor;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-
-import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * Entry point class.
@@ -115,7 +113,16 @@ public class Main implements Runnable {
             return;
         }
         this.validateParameters();
-        System.out.println("Hello world!");
+        System.out.println("Starting...");
+        System.out.println("Running in " + (distribution ? "distribution" : "recovery") + " mode.");
+        if (distribution) {
+            new Encryptor(8, 8, secretImagePath, shadowsDirectory);
+//            new Encryptor(minimumShadows, amountOfShadows, secretImagePath, shadowsDirectory);
+            return;
+        }
+//        new Decryptor()
+
+
     }
 
     /**
@@ -150,7 +157,6 @@ public class Main implements Runnable {
      * @param args Execution arguments.
      */
     public static void main(String[] args) {
-
         try {
             new Main(args).run();
         } catch (Throwable e) {
@@ -177,7 +183,7 @@ public class Main implements Runnable {
 
     //    public static void main(String[] args) {
 //
-//    Encryption encryption = new Encryption(8,8,"C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\Secret2.bmp","C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows");
+//    Encryptor encryption = new Encryptor(8,8,"C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\Secret2.bmp","C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows");
 //        encryption.encrypt();
 //}
 

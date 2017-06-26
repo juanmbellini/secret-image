@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  *
  * @implNote This is a not thread-safe class.
  */
-public final class Matrix<E> /*implements Cloneable*/ {
+public final class Matrix<E> {
 
 
     // ====================================================

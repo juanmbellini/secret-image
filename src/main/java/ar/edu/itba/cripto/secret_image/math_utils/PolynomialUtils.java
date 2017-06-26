@@ -30,7 +30,7 @@ public class PolynomialUtils {
                 .mapToInt(Map.Entry::getKey)
                 .mapToObj(base -> IntStream.range(0, degree)
                         .map(exp -> (int) Math.pow((double) base, (double) exp))
-                        .map(each -> each % mod)
+                        .map(each -> ((each % mod) + mod) % mod)
                         .mapToObj(each -> each)
                         .toArray(Integer[]::new))
                 .toArray(Integer[][]::new), field);
@@ -38,7 +38,7 @@ public class PolynomialUtils {
         final Matrix<Integer> independentTermsMatrix = new Matrix<>(points.entrySet().stream()
                 .parallel()
                 .mapToInt(Map.Entry::getValue)
-                .map(each -> each % mod)
+                .map(each -> ((each % mod) + mod) % mod)
                 .mapToObj(each -> Stream.of(each).toArray(Integer[]::new))
                 .toArray(Integer[][]::new), field);
 

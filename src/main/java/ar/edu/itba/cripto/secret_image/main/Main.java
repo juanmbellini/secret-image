@@ -4,8 +4,14 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Entry point class.
@@ -115,7 +121,27 @@ public class Main implements Runnable {
             return;
         }
         this.validateParameters();
-        System.out.println("Hello world!");
+        System.out.println("Starting...");
+        System.out.println("Running in " + (distribution ? "distribution" : "recovery") + " mode.");
+        if (distribution) {
+            final Encryption encryptor =
+                    new Encryption(minimumShadows, amountOfShadows, secretImagePath, shadowsDirectory);
+            encryptor.encrypt();
+            return;
+        }
+        //noinspection ConstantConditions
+        List<String> paths =
+                Arrays.stream(Optional.of(new File(shadowsDirectory).listFiles((dir, name) -> name.endsWith(".bmp")))
+                        .orElse(new File[0]))
+                        .map(File::getAbsolutePath)
+                        .collect(Collectors.toList());
+
+        try {
+            Decryptor.decrypt(minimumShadows, secretImagePath, paths);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
     }
 
     /**
@@ -129,6 +155,9 @@ public class Main implements Runnable {
         // Check that only one execution mode is specified.
         if (distribution && recovery) {
             throw new ParameterException("Fatal. Only one execution mode must be specified.");
+        }
+        if (minimumShadows < 2) {
+            throw new ParameterException("Fatal. At least 2 shadows are needed.");
         }
         // Check that the amount of shadows is not smaller than the minimum amount of shadows needed
         // to recover the secret image.
@@ -160,25 +189,5 @@ public class Main implements Runnable {
             System.exit(1);
         }
     }
-
-//    public static void main(String[] args) {
-//
-//        ArrayList<String> paths = new ArrayList<>();
-//        for(int i=1; i<=8; i++){
-//            paths.add("C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows\\"+i+".bmp");
-//        }
-//        try {
-//            Decryptor.decrypt("C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows\\","secret.bmp",paths);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-
-    //    public static void main(String[] args) {
-//
-//    Encryption encryption = new Encryption(8,8,"C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\Secret2.bmp","C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows");
-//        encryption.encrypt();
-//}
 
 }

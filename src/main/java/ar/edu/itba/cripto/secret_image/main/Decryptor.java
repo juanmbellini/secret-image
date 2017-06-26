@@ -14,9 +14,10 @@ public class Decryptor {
      *
      * @return
      */
-    public static void decrypt(String secretPath, String secretName, ArrayList<String> paths) throws IOException {
+    public static void decrypt(int k, String secretName, List<String> paths) throws IOException {
 
-        int k = paths.size();
+
+        paths = paths.subList(0, k);
         if(k<2){
             throw new IllegalArgumentException("Number of shadows must be at least 2");
         }
@@ -94,7 +95,7 @@ public class Decryptor {
             }
         }
 
-        BmpEditor secret = new BmpEditor(secretPath + secretName, resultBytes, images.get(0), k);
+        BmpEditor secret = new BmpEditor(secretName, resultBytes, images.get(0), k);
         secret.saveImage();
     }
 }

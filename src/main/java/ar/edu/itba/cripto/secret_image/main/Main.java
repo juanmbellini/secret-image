@@ -1,9 +1,14 @@
 package ar.edu.itba.cripto.secret_image.main;
 
+import ar.edu.itba.cripto.secret_image.bmp.WritableBmpImage;
+import ar.edu.itba.cripto.secret_image.crypt.Decryptor;
 import ar.edu.itba.cripto.secret_image.crypt.Encryptor;
+import ar.edu.itba.cripto.secret_image.io.BmpFileIO;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+
+import java.util.List;
 
 /**
  * Entry point class.
@@ -116,12 +121,13 @@ public class Main implements Runnable {
         System.out.println("Starting...");
         System.out.println("Running in " + (distribution ? "distribution" : "recovery") + " mode.");
         if (distribution) {
-            new Encryptor(8, 8, secretImagePath, shadowsDirectory);
-//            new Encryptor(minimumShadows, amountOfShadows, secretImagePath, shadowsDirectory);
+            final Encryptor encryptor =
+                    new Encryptor(minimumShadows, amountOfShadows, secretImagePath, shadowsDirectory);
+            BmpFileIO.saveShadows(encryptor.encrypt());
             return;
         }
-//        new Decryptor()
-
+        final Decryptor decryptor = new Decryptor(minimumShadows, secretImagePath, shadowsDirectory);
+        BmpFileIO.saveImage(decryptor.decrypt());
 
     }
 
@@ -136,6 +142,9 @@ public class Main implements Runnable {
         // Check that only one execution mode is specified.
         if (distribution && recovery) {
             throw new ParameterException("Fatal. Only one execution mode must be specified.");
+        }
+        if (minimumShadows < 2) {
+            throw new ParameterException("Fatal. At least 2 shadows are needed.");
         }
         // Check that the amount of shadows is not smaller than the minimum amount of shadows needed
         // to recover the secret image.
@@ -163,28 +172,9 @@ public class Main implements Runnable {
             System.err.println(e.getMessage());
             System.err.println("Problems were encountered while executing system.");
             System.err.println("Aborting.");
+            e.printStackTrace();
             System.exit(1);
         }
     }
-
-//    public static void main(String[] args) {
-//
-//        ArrayList<String> paths = new ArrayList<>();
-//        for(int i=1; i<=8; i++){
-//            paths.add("C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows\\"+i+".bmp");
-//        }
-//        try {
-//            Decryptor.decrypt("C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows\\","secret.bmp",paths);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-
-    //    public static void main(String[] args) {
-//
-//    Encryptor encryption = new Encryptor(8,8,"C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\Secret2.bmp","C:\\cygwin64\\home\\Estela\\secret-image\\src\\main\\resources\\shadows");
-//        encryption.encrypt();
-//}
 
 }

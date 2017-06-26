@@ -101,7 +101,7 @@ public class BmpFileIO {
     }
 
 
-    private static void saveImage(WritableBmpImage bmpImage) {
+    public static void saveImage(WritableBmpImage bmpImage) {
         try {
             FileUtils.writeByteArrayToFile(bmpImage.getFile(), bmpImage.getRawBytes());
         } catch (IOException e) {

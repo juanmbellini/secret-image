@@ -23,7 +23,8 @@ public class BmpFileIO {
     /**
      * Returns a {@link List} of {@link WritableBmpImage} to be used as shadows.
      *
-     * @param dirPath The path where the shadow images are.
+     * @param dirPath        The path where the shadow images are.
+     * @param iteratorAmount The value to be used as {@code bytesFromIterator} when creating the {@link BmpImage}
      * @return The {@link List} containing the shadows.
      */
     public static List<WritableBmpImage> getWritableShadowImages(String dirPath, int iteratorAmount) {
@@ -37,7 +38,8 @@ public class BmpFileIO {
     /**
      * Returns a {@link List} of {@link BmpImage} to be used as shadows.
      *
-     * @param dirPath The path where the shadow images are.
+     * @param dirPath        The path where the shadow images are.
+     * @param iteratorAmount The value to be used as {@code bytesFromIterator} when creating the {@link BmpImage}
      * @return The {@link List} containing the shadows.
      */
     public static List<BmpImage> getShadowImages(String dirPath, int iteratorAmount) {
@@ -52,6 +54,7 @@ public class BmpFileIO {
      * Returns a {@link BmpImage} to be used as secret.
      *
      * @param secretImagePath The path to the secret image.
+     * @param iteratorAmount  The value to be used as {@code bytesFromIterator} when creating the {@link BmpImage}
      * @return The secret image.
      */
     public static BmpImage getSecretImage(String secretImagePath, int iteratorAmount) {

@@ -45,6 +45,9 @@ public class Encryption {
         if (k < 2) {
             throw new IllegalArgumentException("Number of shadows must be at least 2");
         }
+        if (k > 257) {
+            throw new IllegalArgumentException("The maximum amount of shadows is 257");
+        }
         if (secretImagePath == null) {
             throw new IllegalArgumentException("Null secret image path");
         }

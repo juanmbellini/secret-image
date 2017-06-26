@@ -102,7 +102,12 @@ public class Main implements Runnable {
     private Main(String[] args) {
         this.jCommander = new JCommander(this);
         this.jCommander.setProgramName("java -jar <path-to-jar>");
-        this.jCommander.parse(args);
+        try {
+            this.jCommander.parse(args);
+        } catch (ParameterException e) {
+            this.jCommander.usage();
+            throw e;
+        }
     }
 
     @Override
@@ -111,9 +116,12 @@ public class Main implements Runnable {
             this.jCommander.usage();
             return;
         }
-        this.validateParameters();
-//        System.out.println("Starting...");
-//        System.out.println("Running in " + (distribution ? "distribution" : "recovery") + " mode.");
+        try {
+            this.validateParameters();
+        } catch (ParameterException e) {
+            this.jCommander.usage();
+            throw e;
+        }
         if (distribution) {
             final Encryption encryptor =
                     new Encryption(minimumShadows, amountOfShadows, secretImagePath, shadowsDirectory);
@@ -166,8 +174,7 @@ public class Main implements Runnable {
         try {
             new Main(args).run();
         } catch (Throwable e) {
-            System.err.println("Problems were encountered while executing system.");
-            System.err.println("Aborting.");
+            System.err.println(e.getMessage());
             System.exit(1);
         }
     }

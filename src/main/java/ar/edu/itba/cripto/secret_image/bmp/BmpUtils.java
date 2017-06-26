@@ -161,6 +161,13 @@ public class BmpUtils implements Iterable<List<Integer>> {
     }
 
     /**
+     * @return The image offset
+     */
+    public int getOffset() {
+        return offset;
+    }
+
+    /**
      * Sets the amount of bytes that will be returned each time this image is iterated.
      *
      * @param bytesFromIterator The amount of bytes that will be returned each time this image is iterated.

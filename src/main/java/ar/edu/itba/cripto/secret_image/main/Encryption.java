@@ -118,8 +118,14 @@ public class Encryption {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-            if (shadow.getImageSize() != (imageSize / k) * 8) {
+            if (k == 8 && shadow.getImageSize() != (imageSize / k) * 8) {
                 throw new IllegalStateException("shadow size is not of correct size");
+            }
+            if(k != 8){
+                if(shadow.getOffset() != bmpUtil.getOffset() || shadow.getWidth() != bmpUtil.getWidth()
+                        || shadow.getHeight() != (bmpUtil.getHeight()*8/k)  + 1){
+                    throw new IllegalStateException("shadow size is not of correct size");
+                }
             }
 
             BmpEditor editor = shadow.edit();

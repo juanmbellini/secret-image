@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 /**
  * Class implementing logic to perform encryption.
  */
-
 public class Encryption {
 
     /**

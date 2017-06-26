@@ -57,7 +57,7 @@ public class Encryption {
 
         //noinspection ConstantConditions
         this.shadowPaths =
-                Arrays.stream(Optional.of(new File(directory).listFiles((dir, name) -> name.endsWith(".bmp")))
+                Arrays.stream(Optional.ofNullable(new File(directory).listFiles((dir, name) -> name.endsWith(".bmp")))
                         .orElse(new File[0]))
                         .map(File::getPath)
                         .collect(Collectors.toList());

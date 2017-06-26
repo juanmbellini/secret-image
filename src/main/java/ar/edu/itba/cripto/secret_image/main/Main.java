@@ -4,15 +4,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 /**
  * Entry point class.
  */
@@ -129,19 +120,10 @@ public class Main implements Runnable {
             encryptor.encrypt();
             return;
         }
-        //noinspection ConstantConditions
-        List<String> paths =
-                Arrays.stream(Optional.of(new File(shadowsDirectory).listFiles((dir, name) -> name.endsWith(".bmp")))
-                        .orElse(new File[0]))
-                        .map(File::getAbsolutePath)
-                        .collect(Collectors.toList());
 
-        try {
-            Decryptor.decrypt(minimumShadows, secretImagePath, paths);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
+        final Decryptor decryptor =
+                new Decryptor(minimumShadows, secretImagePath, shadowsDirectory);
+        decryptor.decrypt();
     }
 
     /**

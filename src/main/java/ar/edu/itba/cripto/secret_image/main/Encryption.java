@@ -6,64 +6,87 @@ import ar.edu.itba.cripto.secret_image.bmp.BmpUtils;
 import ar.edu.itba.cripto.secret_image.main.util.PseudoTable;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.io.UncheckedIOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
+/**
+ * Class implementing logic to perform encryption.
+ */
 public class Encryption {
 
+    /**
+     * The minimum amount of shadow images where the secret will be hidden.
+     */
     private final int k;
+    /**
+     * The amount of shadows to be created.
+     */
     private final int n;
+    /**
+     * The path to the secret image (i.e that one to be hidden).
+     */
     private final String secretImagePath;
+    /**
+     * A {@link List} containing the path to each shadow image.
+     */
     private final List<String> shadowPaths;
 
-    public Encryption(int k, int n, String secretImagePath, String directory){
-        this.k = k;
-        this.n = n;
-//        this.secretImagePath = secretImagePath;
+    /**
+     * Constructor.
+     *
+     * @param k               The minimum amount of shadow images where the secret will be hidden.
+     * @param n               The amount of shadows to be created.
+     * @param secretImagePath The path to the secret image (i.e that one to be hidden).
+     * @param directory       The path to the directory holding the images to be used as shadows.
+     */
+    public Encryption(int k, Integer n, String secretImagePath, String directory) {
+        if (k < 2) {
+            throw new IllegalArgumentException("Number k must be at least 2");
+        }
+        if (k > 257) {
+            throw new IllegalArgumentException("The number k must be less than 257");
+        }
+        if (secretImagePath == null) {
+            throw new IllegalArgumentException("Null secret image path");
+        }
+        if (directory == null) {
+            throw new IllegalArgumentException("Null directory");
+        }
 
+        //noinspection ConstantConditions
+        this.shadowPaths =
+                Arrays.stream(Optional.ofNullable(new File(directory).listFiles((dir, name) -> name.endsWith(".bmp")))
+                        .orElse(new File[0]))
+                        .map(File::getPath)
+                        .collect(Collectors.toList());
+        this.k = k;
+        this.n = n == null ? shadowPaths.size() : n;
         this.secretImagePath = secretImagePath;
 
-
-        File dir = new File(directory);
-        File [] files = dir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".bmp");
-            }
-        });
-
-        this.shadowPaths = new ArrayList<>();
-        for (File bmpfile : files) {
-            shadowPaths.add(bmpfile.getPath());
-        }
-        if(shadowPaths.size()!=n){
-            throw new IllegalStateException("The amount of shadows is not N.");
+        if (shadowPaths.size() < k) {
+            throw new IllegalArgumentException("There are less than k shadows in directory");
         }
     }
 
     /**
-     *
-     * encrypts the image located in secretImagePath into n shadows
+     * Performs the encryption process according to the set parameters.
      */
-    public void encrypt(){
+    public void encrypt() {
 
-        System.out.println("----- encrypting -----");
-
-        //Mocking BMPUtil
+        // Mocking BMPUtil
         BmpUtils bmpUtil = null;
         try {
             bmpUtil = new BmpUtils(secretImagePath);
             bmpUtil.setBytesFromIterator(k);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new UncheckedIOException(e);
         }
 
-        int imageSize = (int)bmpUtil.getImageSize();
+        int imageSize = (int) bmpUtil.getImageSize();
 
-        if(imageSize%k!=0){
+        if (imageSize % k != 0) {
             throw new IllegalStateException("Image to encrypt need to be of a size divisible by k");
         }
 
@@ -77,23 +100,15 @@ public class Encryption {
         List<List<Integer>> evalsList = new ArrayList<>();
 
         int i = 0;
-        for(List<Integer> coefficients : bmpUtil){
+        for (List<Integer> coefficients : bmpUtil) {
             List<Integer> newCoefficients = new ArrayList<>();
             for (int j = 0; j < coefficients.size(); j++) {
-                newCoefficients.add(coefficients.get(j) ^ pseudoTable.get(i*coefficients.size()+j));
+                newCoefficients.add(coefficients.get(j) ^ pseudoTable.get(i * coefficients.size() + j));
             }
             i++;
-
-
-            System.out.println("----- evaluating polynomials " + i + "  -----");
-
             List<Integer> evals = evalPolynomial(newCoefficients, n);
-
             evalsList.add(evals);
         }
-
-
-        System.out.println("----- polynomials evaled -----");
 
         for (int j = 0; j < n; j++) {
             BmpUtils shadow = null;
@@ -101,61 +116,69 @@ public class Encryption {
                 shadow = new BmpUtils(shadowPaths.get(j));
                 shadow.setBytesFromIterator(k);
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new UncheckedIOException(e);
             }
-            if( shadow.getImageSize() != (imageSize/k)*8 ){
-                throw new IllegalStateException("shadow size is not of correct size");
+            if (k == 8){
+                if(shadow.getWidth() != bmpUtil.getWidth() ||
+                        shadow.getHeight() != bmpUtil.getHeight()){
+                    throw new IllegalStateException("shadow size is not of correct size");
+                }
+            }else {
+                if(shadow.getOffset() != bmpUtil.getOffset() ||
+                        shadow.getWidth() != bmpUtil.getWidth() ||
+                        shadow.getHeight() != (bmpUtil.getHeight()*8/k)  + 1){
+                    throw new IllegalStateException("shadow size is not of correct size");
+                }
             }
 
             BmpEditor editor = shadow.edit();
             editor.editSeed(seed);
             editor.editShadow(j + 1);
-            for (int l = 0; l < evalsList.size(); l++) {
-                editor.insertSecret(evalsList.get(l).get(j));
+            for (List<Integer> anEvalsList : evalsList) {
+                editor.insertSecret(anEvalsList.get(j));
             }
             editor.saveImage();
         }
     }
 
 
-
     /**
+     * Returns a {@link List} of values that are the polynomial whose coefficients are the given {@code newCoefficients}
+     * using x all values between 1 and {@code n}.
      *
-     * @param newCoefficients coefficients of polynomial
-     * @param n range of values in which polynomial will be evaluated
-     * @return evaluations of polynomial with x from 1 to n
+     * @param newCoefficients The polynomial coefficients.
+     * @param n               The range of values in which polynomial will be evaluated
+     * @return The evaluations of the polynomial.
      */
-    private List<Integer> evalPolynomial(List<Integer> newCoefficients, int n){
+    private List<Integer> evalPolynomial(List<Integer> newCoefficients, int n) {
         boolean overflow = true;
         List<Integer> evals = null;
 
-        while(overflow) {
+        while (overflow) {
             evals = new ArrayList<>();
             overflow = false;
             for (int x = 1; x <= n && !overflow; x++) {
                 int eval = 0;
                 for (int i = 0; i < newCoefficients.size(); i++) {
                     int powerX = 1;
-                    for(int pow = 0; pow<i; pow++){
+                    for (int pow = 0; pow < i; pow++) {
                         powerX *= x;
                         powerX %= 257;
                     }
                     eval += newCoefficients.get(i) * powerX;
                     eval %= 257;
-//                    eval += newCoefficients.get(i) * Math.pow(x, i);
                 }
-                if(eval == 256){
+                if (eval == 256) {
                     overflow = true;
                     boolean flag = true;
                     for (int i = 0; i < newCoefficients.size() && flag; i++) {
-                        if(newCoefficients.get(i) != 0){
-                            newCoefficients.set(i, newCoefficients.get(i)-1);
+                        if (newCoefficients.get(i) != 0) {
+                            newCoefficients.set(i, newCoefficients.get(i) - 1);
                             flag = false;
                         }
                     }
-                }
-                else{
-                    evals.add(x-1, eval);
+                } else {
+                    evals.add(x - 1, eval);
                 }
             }
         }

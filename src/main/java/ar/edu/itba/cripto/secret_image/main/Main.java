@@ -4,15 +4,6 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 /**
  * Entry point class.
  */
@@ -52,7 +43,7 @@ public class Main implements Runnable {
             required = true,
             description = "Path to secret image. In distribution mode, this must be the path" +
                     " to the secret image to distribute. In recovery mode, this must be the target path (i.e where " +
-                    " the recovered secret image will be saved.")
+                    " the recovered secret image will be saved).")
     private String secretImagePath;
 
     /**
@@ -105,12 +96,24 @@ public class Main implements Runnable {
 
     /**
      * Constructor.
-     *
-     * @param args The running arguments.
      */
-    private Main(String[] args) {
+    private Main() {
         this.jCommander = new JCommander(this);
         this.jCommander.setProgramName("java -jar <path-to-jar>");
+    }
+
+    /**
+     * Prints usage message.
+     */
+    private void printUsage() {
+        this.jCommander.usage();
+        System.out.flush();
+    }
+
+    /**
+     * Performs parameters parsing.
+     */
+    private void parseParameters(String[] args) {
         this.jCommander.parse(args);
     }
 
@@ -121,27 +124,16 @@ public class Main implements Runnable {
             return;
         }
         this.validateParameters();
-        System.out.println("Starting...");
-        System.out.println("Running in " + (distribution ? "distribution" : "recovery") + " mode.");
         if (distribution) {
             final Encryption encryptor =
                     new Encryption(minimumShadows, amountOfShadows, secretImagePath, shadowsDirectory);
             encryptor.encrypt();
             return;
         }
-        //noinspection ConstantConditions
-        List<String> paths =
-                Arrays.stream(Optional.of(new File(shadowsDirectory).listFiles((dir, name) -> name.endsWith(".bmp")))
-                        .orElse(new File[0]))
-                        .map(File::getAbsolutePath)
-                        .collect(Collectors.toList());
 
-        try {
-            Decryptor.decrypt(minimumShadows, secretImagePath, paths);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
+        final Decryptor decryptor =
+                new Decryptor(minimumShadows, secretImagePath, shadowsDirectory);
+        decryptor.decrypt();
     }
 
     /**
@@ -163,7 +155,8 @@ public class Main implements Runnable {
         // to recover the secret image.
         if (amountOfShadows != null && minimumShadows > amountOfShadows) {
             throw new ParameterException("Fatal. " +
-                    "The amount of shadows must be greater or equal than the amount of shadows.");
+                    "The amount of shadows must be greater or equal than the minimum amount of shadows needed." +
+                    " Hint: n >= k");
         }
     }
 
@@ -179,13 +172,14 @@ public class Main implements Runnable {
      * @param args Execution arguments.
      */
     public static void main(String[] args) {
-
+        Main main = new Main();
         try {
-            new Main(args).run();
+            main.parseParameters(args);
+            main.run();
         } catch (Throwable e) {
-            System.err.println(e.getMessage());
-            System.err.println("Problems were encountered while executing system.");
-            System.err.println("Aborting.");
+            System.err.println("\u001B[31mError: " + e.getMessage() + "\u001B[0m");
+            System.err.flush();
+            main.printUsage();
             System.exit(1);
         }
     }

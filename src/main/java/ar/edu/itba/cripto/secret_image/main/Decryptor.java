@@ -38,10 +38,10 @@ public class Decryptor {
      */
     public Decryptor(int k, String secretImagePath, String directory) {
         if (k < 2) {
-            throw new IllegalArgumentException("Number of shadows must be at least 2");
+            throw new IllegalArgumentException("Number k must be at least 2");
         }
-        if (k > 257) {
-            throw new IllegalArgumentException("The maximum amount of shadows is 257");
+        if (k >= 257) {
+            throw new IllegalArgumentException("The number k must be less than 257");
         }
         if (directory == null) {
             throw new IllegalArgumentException("Null directory");
@@ -56,7 +56,7 @@ public class Decryptor {
                         .collect(Collectors.toList());
 
         if (shadowPaths.size() < k) {
-            throw new IllegalArgumentException("More shadows are needed");
+            throw new IllegalArgumentException("There are less than k shadows in directory");
         }
     }
 
@@ -131,9 +131,6 @@ public class Decryptor {
         List<Integer> permutationTable = PseudoTable.generatePseudoTable(k * numPolynomes, seed);
         for (int polynomeNumber = 0; polynomeNumber < numPolynomes; polynomeNumber++) {
             List<Integer> coefficients = PolynomialUtils.getCoefficients(evaluatedPolynomesMap.get(polynomeNumber), 257);
-            if (coefficients.size() != k) {
-                throw new IllegalStateException("coefficients != k");
-            }
             for (int coefficientNumber = 0; coefficientNumber < k; coefficientNumber++) {
                 resultBytes.add(coefficients.get(coefficientNumber) ^ permutationTable.get(polynomeNumber * k + coefficientNumber));
             }

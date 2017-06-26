@@ -43,10 +43,10 @@ public class Encryption {
      */
     public Encryption(int k, Integer n, String secretImagePath, String directory) {
         if (k < 2) {
-            throw new IllegalArgumentException("Number of shadows must be at least 2");
+            throw new IllegalArgumentException("Number k must be at least 2");
         }
         if (k > 257) {
-            throw new IllegalArgumentException("The maximum amount of shadows is 257");
+            throw new IllegalArgumentException("The number k must be less than 257");
         }
         if (secretImagePath == null) {
             throw new IllegalArgumentException("Null secret image path");
@@ -66,7 +66,7 @@ public class Encryption {
         this.secretImagePath = secretImagePath;
 
         if (shadowPaths.size() < k) {
-            throw new IllegalArgumentException("More shadows are needed");
+            throw new IllegalArgumentException("There are less than k shadows in directory");
         }
     }
 

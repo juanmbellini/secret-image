@@ -43,7 +43,7 @@ public class Main implements Runnable {
             required = true,
             description = "Path to secret image. In distribution mode, this must be the path" +
                     " to the secret image to distribute. In recovery mode, this must be the target path (i.e where " +
-                    " the recovered secret image will be saved.")
+                    " the recovered secret image will be saved).")
     private String secretImagePath;
 
     /**

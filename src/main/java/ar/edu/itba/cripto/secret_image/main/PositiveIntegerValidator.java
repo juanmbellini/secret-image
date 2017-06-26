@@ -14,7 +14,7 @@ public class PositiveIntegerValidator extends PositiveInteger {
         try {
             super.validate(name, value);
         } catch (NumberFormatException e) {
-            throw new ParameterException("Fatal. Parameter " + name + " must be numeric.");
+            throw new ParameterException("Fatal. Parameter " + name + " must be a positive integer.");
         } catch (ParameterException e) {
             throw new ParameterException("Fatal. " + e.getMessage());
         }

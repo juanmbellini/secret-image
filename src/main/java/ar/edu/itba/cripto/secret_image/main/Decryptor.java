@@ -53,7 +53,7 @@ public class Decryptor {
                 Arrays.stream(Optional.of(new File(directory).listFiles((dir, name) -> name.endsWith(".bmp")))
                         .orElse(new File[0]))
                         .map(File::getPath)
-                        .collect(Collectors.toList()).subList(0, k);
+                        .collect(Collectors.toList());
 
         if (shadowPaths.size() < k) {
             throw new IllegalArgumentException("More shadows are needed");

@@ -177,7 +177,7 @@ public class Main implements Runnable {
             main.parseParameters(args);
             main.run();
         } catch (Throwable e) {
-            System.err.println(e.getMessage());
+            System.err.println("\u001B[31mError: " + e.getMessage() + "\u001B[0m");
             System.err.flush();
             main.printUsage();
             System.exit(1);

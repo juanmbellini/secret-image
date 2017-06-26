@@ -96,18 +96,25 @@ public class Main implements Runnable {
 
     /**
      * Constructor.
-     *
-     * @param args The running arguments.
      */
-    private Main(String[] args) {
+    private Main() {
         this.jCommander = new JCommander(this);
         this.jCommander.setProgramName("java -jar <path-to-jar>");
-        try {
-            this.jCommander.parse(args);
-        } catch (ParameterException e) {
-            this.jCommander.usage();
-            throw e;
-        }
+    }
+
+    /**
+     * Prints usage message.
+     */
+    private void printUsage() {
+        this.jCommander.usage();
+        System.out.flush();
+    }
+
+    /**
+     * Performs parameters parsing.
+     */
+    private void parseParameters(String[] args) {
+        this.jCommander.parse(args);
     }
 
     @Override
@@ -116,12 +123,7 @@ public class Main implements Runnable {
             this.jCommander.usage();
             return;
         }
-        try {
-            this.validateParameters();
-        } catch (ParameterException e) {
-            this.jCommander.usage();
-            throw e;
-        }
+        this.validateParameters();
         if (distribution) {
             final Encryption encryptor =
                     new Encryption(minimumShadows, amountOfShadows, secretImagePath, shadowsDirectory);
@@ -170,11 +172,14 @@ public class Main implements Runnable {
      * @param args Execution arguments.
      */
     public static void main(String[] args) {
-
+        Main main = new Main();
         try {
-            new Main(args).run();
+            main.parseParameters(args);
+            main.run();
         } catch (Throwable e) {
             System.err.println(e.getMessage());
+            System.err.flush();
+            main.printUsage();
             System.exit(1);
         }
     }

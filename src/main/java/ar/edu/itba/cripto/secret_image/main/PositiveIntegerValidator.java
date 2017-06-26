@@ -13,6 +13,8 @@ public class PositiveIntegerValidator extends PositiveInteger {
     public void validate(String name, String value) throws ParameterException {
         try {
             super.validate(name, value);
+        } catch (NumberFormatException e) {
+            throw new ParameterException("Fatal. Parameter " + name + " must be numeric.");
         } catch (ParameterException e) {
             throw new ParameterException("Fatal. " + e.getMessage());
         }

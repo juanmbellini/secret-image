@@ -29,7 +29,7 @@ public class PolynomialUtils {
                 .parallel()
                 .mapToInt(Map.Entry::getKey)
                 .mapToObj(base -> IntStream.range(0, degree)
-                        .map(exp -> (int) Math.pow((double) base, (double) exp))
+                        .map(exp -> auxPow( base, exp, mod))
                         .map(each -> each % mod)
                         .mapToObj(each -> each)
                         .toArray(Integer[]::new))
@@ -47,5 +47,14 @@ public class PolynomialUtils {
                 .reducedRowEchelonForm();
         return Arrays.asList(equationMatrix.getColumn(degree));
 
+    }
+
+    private static int auxPow(int base, int exp, int mod) {
+            int result = 1;
+            for(int pow = 0; pow<exp; pow++){
+                result *= base;
+                result %= mod;
+            }
+            return result;
     }
 }
